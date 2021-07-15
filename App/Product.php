@@ -25,7 +25,15 @@ class Product {
     public static function getListByCategory ($category_id){
         $query = "SELECT p.*, c.name as category_name FROM products AS p LEFT JOIN categories AS c ON p.category_id = c.id WHERE p.category_id = $category_id";
 
-        return Db::fetchAll($query);
+        $products = Db::fetchAll($query);
+
+        foreach ($products as &$product) {
+            $images = ProductImage::getListByProductId($product['id']);
+            $product['images'] = $images;
+        }
+
+        return $products;
+
     }
 
     public static function getById($id) {
@@ -37,6 +45,14 @@ class Product {
 
         return $product;
 
+    }
+
+    public static function getByField(string $mainfield ,string $value)
+    {
+        $mainfield = Db::escape($mainfield);
+        $value = Db::escape($value);
+        $query = "SELECT * FROM products WHERE `$mainfield` = '$value'";
+        return Db::fetchRow($query);
     }
 
     public static function updateById(int $id, array $product): int
@@ -67,13 +83,13 @@ class Product {
 
     public static function getDataFromPost(){
         return [
-            'id'            => Request::getIntFromPost('id',false),
-            'name'          => Request::getStrFromPost('name'),
-            'article'       => Request::getStrFromPost('article'),
-            'price'         => Request::getIntFromPost('price'),
-            'amount'        => Request::getIntFromPost('amount'),
-            'description'   => Request::getStrFromPost('description'),
-            'category_id'   => Request::getIntFromPost('category_id'),
+            'id'            => Db::escape(Request::getIntFromPost('id',false)),
+            'name'          => Db::escape(Request::getStrFromPost('name')),
+            'article'       => Db::escape(Request::getStrFromPost('article')),
+            'price'         => Db::escape(Request::getIntFromPost('price')),
+            'amount'        => Db::escape(Request::getIntFromPost('amount')),
+            'description'   => Db::escape(Request::getStrFromPost('description')),
+            'category_id'   => Db::escape(Request::getIntFromPost('category_id')),
         ];
     }
 

@@ -12,84 +12,13 @@ if (Request::isPost()){
     $productData = Product::getDataFromPost();
     $edited = Product::updateById($productId, $productData);
 
+    /* Загрузка изображений по урл */
+    $imageUrl = $_POST['image_url'];
+    ProductImage::uploadImagesByUrl($productId , $imageUrl);
+
+    /* Загрузка изображений c локального диска */
     $uploadImages = $_FILES['images'] ?? [];
-    $imageNames = $uploadImages['name'];
-    $imageTmpNames = $uploadImages['tmp_name'];
-    /**
-     * Вариант с заменой изображений с одинаковым именем
-     */
-//    $currentImageNames = [];
-//    foreach ($product['images'] as $image) {
-//        $currentImageNames[] = $image['name'];
-//    }
-//
-//    $diffImageNames = array_diff($imageNames, $currentImageNames);
-    /**
-     * -
-     */
-
-    $path = APP_UPLOAD_PRODUCT_DIR . '/' . $productId;
-
-    if (!file_exists($path)){
-        mkdir($path);
-    }
-
-    for ($i = 0; $i < count($imageNames); $i++){
-
-        $imageName = basename($imageNames[$i]);
-        $imageTmpName = $imageTmpNames[$i];
-
-        /**
-         * Вариант с заменой изображений с одинаковым именем
-         */
-
-//        $imagePath = $path . '/' . $imageName;
-//
-//        move_uploaded_file($imageTmpName, $imagePath);
-//        if (in_array($imageName, $diffImageNames)){
-//            ProductImage::add([
-//                'product_id'    => $productId,
-//                'name'          => $imageName,
-//                'path'          => str_replace(APP_PUBLIC_DIR, '', $imagePath),
-//            ]);
-//        }
-
-        /**
-         * Вариант с изменением совпадающих имен изображений
-        */
-
-        $filename = $imageName;
-        $counter = 0;
-        while (true){
-            $duplicateImage = ProductImage::findByFilenameInProduct($productId, $filename);
-            if (empty($duplicateImage)){
-                break;
-            }
-
-            $info = pathinfo($imageName);
-            $filename = $info['filename'];
-            $filename .= '_' . $counter . '.' . $info['extension'];
-
-            $counter++;
-        }
-
-        $imagePath = $path . '/' . $filename;
-
-        move_uploaded_file($imageTmpName, $imagePath);
-
-        ProductImage::add([
-            'product_id'    => $productId,
-            'name'          => $filename,
-            'path'          => str_replace(APP_PUBLIC_DIR, '', $imagePath),
-        ]);
-
-    }
-
-    /*if ($edited) {
-        Response::redirect('/products/list');
-    } else {
-        die("some edit error");
-    }*/
+    ProductImage::uploadImages($productId, $uploadImages);
 
     Response::redirect('/products/list');
 

@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.31, created on 2021-07-13 15:28:41
+<?php /* Smarty version 2.6.31, created on 2021-07-14 14:39:22
          compiled from products/form.tpl */ ?>
 <form action="" method="POST" class="form" enctype="multipart/form-data">
     <input type="hidden" name="id" value="<?php echo $this->_tpl_vars['product']['id']; ?>
@@ -29,6 +29,12 @@
             Артикул:<br>
             <input type="text" name="article" value="<?php echo $this->_tpl_vars['product']['article']; ?>
 " required>
+        </label>
+    </div>
+    <div class="form-element">
+        <label for="">
+            Ссылка на изображение:<br>
+            <input type="text" name="image_url" >
         </label>
     </div>
     <div class="form-element">

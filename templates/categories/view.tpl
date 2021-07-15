@@ -18,7 +18,13 @@
                 <tr>
                     <td>{$product.id}</td>
                     <td width="200">
-                        <strong>{$product.name}</strong>
+                        <strong>{$product.name}</strong><br>
+                        {if $product.images}
+                            <br>
+                            {foreach from=$product.images item=image}
+                                <img width="40" src="{$image.path}" alt="{$image.name}">
+                            {/foreach}
+                        {/if}
                     </td>
                     <td>{$product.category_name}</td>
                     <td>{$product.article}</td>

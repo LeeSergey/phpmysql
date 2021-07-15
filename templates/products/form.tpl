@@ -24,6 +24,12 @@
     </div>
     <div class="form-element">
         <label for="">
+            Ссылка на изображение:<br>
+            <input type="text" name="image_url" >
+        </label>
+    </div>
+    <div class="form-element">
+        <label for="">
             Фото:<br>
             <input type="file" multiple name="images[]" >
         </label>

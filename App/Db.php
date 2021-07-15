@@ -17,20 +17,6 @@ class Db {
         return static::$connect;
     }
 
-    public static function connect() {
-
-        $connect = mysqli_connect(static::$host, static::$username, static::$password, static::$database);
-
-        if (mysqli_connect_errno()) {
-            $error = mysqli_connect_error();
-            var_dump($error);
-
-            exit;
-        }
-
-        return $connect;
-    }
-
     public static function query($query) {
 
         $connect = static::getConnect();
@@ -149,5 +135,25 @@ class Db {
     {
         $connect = static::getConnect();
         return mysqli_insert_id($connect);
+    }
+
+    public static function escape(string $value)
+    {
+        $connect = static ::getConnect();
+        return mysqli_real_escape_string($connect , $value);
+    }
+    
+    private static function connect() {
+
+        $connect = mysqli_connect(static::$host, static::$username, static::$password, static::$database);
+
+        if (mysqli_connect_errno()) {
+            $error = mysqli_connect_error();
+            var_dump($error);
+
+            exit;
+        }
+
+        return $connect;
     }
 }
