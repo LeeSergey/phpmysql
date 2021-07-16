@@ -5,7 +5,7 @@ class Db {
     private static $host= '127.0.0.1';
     private static $database= 'test_database';
     private static $username= 'SL';
-    private static $password= '$Earth1983$';
+    private static $password= '$Password1983$';
 
     private static $connect;
 

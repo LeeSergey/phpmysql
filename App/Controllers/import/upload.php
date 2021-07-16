@@ -15,7 +15,19 @@ if (!file_exists($uploadDir)){
 $importFilename = 'i_' . time() . '.' . $file['name'];
 move_uploaded_file($file['tmp_name'], $uploadDir . '/' . $importFilename);*/
 
-$filepath = APP_UPLOAD_DIR . '/import/i_1626242786.import.csv';
+$filename = 'i_1626242786.import.csv';
+$filepath = APP_UPLOAD_DIR . '/import/' . $filename;
+
+TasksQueue::addTask([
+    'name' => 'Импорт товаров ' .$filename,
+    'task' => 'Import::productsFromFileTask()',
+    'params' => [
+        'filename' => $filename
+    ],
+]);
+
+exit;
+
 $file = fopen($filepath, 'r');
 
 $withHeader = true;

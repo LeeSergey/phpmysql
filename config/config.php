@@ -7,6 +7,8 @@ require_once __DIR__ . '/../App/Response.php';
 require_once __DIR__ . '/../App/Product.php';
 require_once __DIR__ . '/../App/ProductImage.php';
 require_once __DIR__ . '/../App/Category.php';
+require_once __DIR__ . '/../App/TasksQueue.php';
+require_once __DIR__ . '/../App/Import.php';
 
 define('APP_DIR', realpath(__DIR__ . '/../'));
 define('APP_PUBLIC_DIR', APP_DIR . '/public');
