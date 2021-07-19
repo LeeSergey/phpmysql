@@ -1,14 +1,19 @@
 <?php
 
 require_once __DIR__ . '/../libs/Smarty/Smarty.class.php';
-require_once __DIR__ . '/../App/Db.php';
-require_once __DIR__ . '/../App/Request.php';
-require_once __DIR__ . '/../App/Response.php';
-require_once __DIR__ . '/../App/Product.php';
-require_once __DIR__ . '/../App/ProductImage.php';
-require_once __DIR__ . '/../App/Category.php';
-require_once __DIR__ . '/../App/TasksQueue.php';
-require_once __DIR__ . '/../App/Import.php';
+//require_once __DIR__ . '/../App/Db.php';
+//require_once __DIR__ . '/../App/DbExp.php';
+//require_once __DIR__ . '/../App/Request.php';
+//require_once __DIR__ . '/../App/Response.php';
+//require_once __DIR__ . '/../App/Product.php';
+//require_once __DIR__ . '/../App/ProductImage.php';
+//require_once __DIR__ . '/../App/Category.php';
+//require_once __DIR__ . '/../App/TasksQueue.php';
+//require_once __DIR__ . '/../App/Import.php';
+
+spl_autoload_register(function ($name){
+    require_once __DIR__ . '/../App/' . $name . '.php';
+});
 
 define('APP_DIR', realpath(__DIR__ . '/../'));
 define('APP_PUBLIC_DIR', APP_DIR . '/public');

@@ -23,7 +23,7 @@ class Db {
         $result = mysqli_query($connect, $query);
 
         if (mysqli_errno($connect)){
-            var_dump(mysqli_errno($connect));
+            var_dump(mysqli_errno($connect), mysqli_error($connect));
             exit;
         }
 
@@ -78,12 +78,47 @@ class Db {
 
     }
 
+    public static function insert(string $table_name, array $fields): int
+    {
+        $field_names = [];
+        $field_values = [];
+
+        foreach ($fields as $field_name=>$field_value) {
+
+            if ($field_name == 'id') {
+                continue;
+            }
+            $field_names[] = "`$field_name`";
+            if ($field_value instanceof DbExp) {
+                $field_values[] = "$field_value";
+            } else {
+                $field_value = Db::escape($field_value);
+                $field_values[] = "'$field_value'";
+            }
+        }
+
+        $field_names = implode(',', $field_names);
+        $field_values = implode(',', $field_values);
+
+        $query = "INSERT INTO $table_name($field_names) VALUES ($field_values)";
+
+        static::query($query);
+
+        return static::lastInsertId();
+
+    }
+
     public static function update(string $table_name, array $fields, string $where)
     {
         $set_fields = [];
 
         foreach ($fields as $field_name=>$field_value) {
-            $set_fields[] = "`$field_name` = '$field_value'";
+            if ($field_value instanceof DbExp) {
+                $set_fields[] = "`$field_name` = $field_value";
+            } else {
+                $field_value = Db::escape($field_value);
+                $set_fields[] = "`$field_name` = '$field_value'";
+            }
         }
 
         $set_fields = implode(',', $set_fields);
@@ -97,31 +132,6 @@ class Db {
         static::query($query);
 
         return static::affectedRows();
-
-    }
-
-    public static function insert(string $table_name, array $fields): int
-    {
-        $field_names = [];
-        $field_values = [];
-
-        foreach ($fields as $field_name=>$field_value) {
-
-            if ($field_name == 'id') {
-                continue;
-            }
-            $field_names[] = "`$field_name`";
-            $field_values[] = "'$field_value'";
-        }
-
-        $field_names = implode(',', $field_names);
-        $field_values = implode(',', $field_values);
-
-        $query = "INSERT INTO $table_name($field_names) VALUES ($field_values)";
-
-        static::query($query);
-
-        return static::lastInsertId();
 
     }
 
@@ -142,7 +152,12 @@ class Db {
         $connect = static ::getConnect();
         return mysqli_real_escape_string($connect , $value);
     }
-    
+
+    public static function expr(string $value)
+    {
+        return new DbExp($value);
+    }
+
     private static function connect() {
 
         $connect = mysqli_connect(static::$host, static::$username, static::$password, static::$database);

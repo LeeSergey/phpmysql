@@ -3,9 +3,125 @@
 
 class TasksQueue
 {
-    public static function addTask(array $taskData)
+    public static function addTask(string $name, string $task , array $params)
     {
-        echo "<pre>";var_dump($taskData);echo "</pre>";
-        $task = $taskData['task'];
+        $taskMeta = explode('::', $task);
+
+        $taskClassExist = class_exists($taskMeta[0]);
+        $taskMethodExist = method_exists($taskMeta[0], $taskMeta[1]);
+
+        if (!$taskClassExist || !$taskMethodExist) {
+            return false;
+        }
+
+        return Db::insert('tasks_queue' , [
+            'name' => Db::escape($name),
+            'task' => Db::escape($task),
+            'params' => json_encode($params),
+            'created_at' => Db::expr('NOW()'),
+        ]);
+    }
+
+    public static function getById(int $taskId):array
+    {
+        $query = "SELECT * FROM tasks_queue WHERE id = '$taskId'";
+        return Db::fetchRow($query);
+    }
+
+    public static function getTaskList():array
+    {
+        $query = "SELECT * FROM tasks_queue ORDER BY created_at DESC";
+        return Db::fetchAll($query);
+    }
+
+    public static function setStatus(int $taskId, string $status)
+    {
+        $availableStatuses = [
+            'new',
+            'in_process',
+            'done',
+            'error',
+        ];
+
+        if (!in_array($status, $availableStatuses)){
+            die('Status not valid ' . $status . ' for task ' . $taskId);
+        }
+
+        return Db::update('tasks_queue', [
+            'status' => $status,
+        ],'id = ' . $taskId);
+    }
+
+    public static function runById(int $id)
+    {
+        $task = static ::getById($id);
+
+        return static::run($task);
+    }
+
+    public static function run(array $task)
+    {
+        $taskId = (int) ($task['id']) ?? null;
+
+        if (empty($task) || is_null($taskId)) {
+            return false;
+        }
+
+        $taskAction = explode('::', $task['task']);
+
+        $taskClassExist =  class_exists($taskAction[0]);
+        $taskMethodExist = method_exists($taskAction[0], $taskAction[1]);
+
+        if (!$taskClassExist || !$taskMethodExist) {
+            static ::setStatus($taskId, 'error');
+            return false;
+        }
+
+        $taskParams = json_decode($task['params'], true);
+
+        static ::setStatus($taskId, 'in_process');
+        call_user_func($taskAction, $taskParams);
+        static ::setStatus($taskId, 'done');
+
+        return true;
+
+    }
+
+    public static function execute()
+    {
+        $query = "SELECT * FROM tasks_queue WHERE status = 'in_process' LIMIT 1";
+        $inProcessTask = Db::fetchRow($query);
+
+        if (!empty($inProcessTask)){
+            echo 'in process';
+            return false;
+        }
+
+        $query = "SELECT * FROM tasks_queue WHERE status = 'new' ORDER BY created_at LIMIT 1";
+        $newTaskProcess = Db::fetchRow($query);
+
+        if (empty($newTaskProcess)){
+            echo 'new task not found';
+            return false;
+        }
+
+        echo 'new task found';
+        return static ::run($newTaskProcess);
+
+    }
+
+    public static function deleteById(int $taskId)
+    {
+        $task = static ::getById($taskId);
+        if (empty($task)) {
+            return false;
+        }
+
+        $taskParams = json_decode($task['params']);
+        $taskUploadedFilename = $taskParams->filename;
+
+        Db::delete('tasks_queue', 'id=' . $taskId);
+
+        return $taskUploadedFilename;
     }
 }

@@ -13,6 +13,6 @@ CREATE TABLE `tasks_queue`(
     `params` text NOT NULL,
     `status` ENUM('new', 'in_process', 'done') DEFAULT 'new',
     `created_at` DATETIME NOT NULL,
-    `updated_at` DATETIME NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY(id)
 );
