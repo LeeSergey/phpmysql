@@ -1,5 +1,8 @@
 <?php
 
+use App\Category;
+use App\Request;
+
 $id = Request::getIntFromPost('id',false);
 
 if (!$id){

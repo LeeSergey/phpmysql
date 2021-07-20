@@ -1,5 +1,8 @@
 <?php
 
+use App\Category;
+use App\Request;
+
 if (Request::isPost()){
 
     $category = Category::getDataFromPost();

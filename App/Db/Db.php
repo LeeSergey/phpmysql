@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Db;
+
 class Db {
 
     private static $host= '127.0.0.1';

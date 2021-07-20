@@ -1,5 +1,9 @@
 <?php
 
+use App\Request;
+use App\Response;
+use App\TasksQueue;
+
 $id = Request::getIntFromPost('id');
 
 $taskUploadedFilename = TasksQueue::deleteById($id);

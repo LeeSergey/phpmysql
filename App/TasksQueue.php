@@ -1,5 +1,6 @@
 <?php
-
+namespace App;
+use App\Db\Db;
 
 class TasksQueue
 {
@@ -16,7 +17,7 @@ class TasksQueue
 
         return Db::insert('tasks_queue' , [
             'name' => Db::escape($name),
-            'task' => Db::escape($task),
+            'task' => $task,
             'params' => json_encode($params),
             'created_at' => Db::expr('NOW()'),
         ]);
@@ -68,7 +69,6 @@ class TasksQueue
         }
 
         $taskAction = explode('::', $task['task']);
-
         $taskClassExist =  class_exists($taskAction[0]);
         $taskMethodExist = method_exists($taskAction[0], $taskAction[1]);
 
