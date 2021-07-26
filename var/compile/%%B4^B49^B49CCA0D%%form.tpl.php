@@ -1,12 +1,12 @@
-<?php /* Smarty version 2.6.31, created on 2021-07-14 14:39:22
+<?php /* Smarty version 2.6.31, created on 2021-07-22 13:30:25
          compiled from products/form.tpl */ ?>
 <form action="" method="POST" class="form" enctype="multipart/form-data">
-    <input type="hidden" name="id" value="<?php echo $this->_tpl_vars['product']['id']; ?>
+    <input type="hidden" name="id" value="<?php echo $this->_tpl_vars['product']->getId(); ?>
 ">
     <div class="form-element">
         <label for="">
             Название товара:<br>
-            <input type="text" name="name" value="<?php echo $this->_tpl_vars['product']['name']; ?>
+            <input type="text" name="name" value="<?php echo $this->_tpl_vars['product']->getName(); ?>
 " required>
         </label>
     </div>
@@ -14,10 +14,11 @@
         <label for="">
             Категория товара:<br>
             <select name="category_id" >
+                <?php $this->assign('productCategory', $this->_tpl_vars['product']->getCategory()); ?>
                 <?php $_from = $this->_tpl_vars['categories']; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array'); }if (count($_from)):
     foreach ($_from as $this->_tpl_vars['category']):
 ?>
-                    <option <?php if ($this->_tpl_vars['category']['id'] == $this->_tpl_vars['product']['category_id']): ?> selected="selected" <?php endif; ?> value="<?php echo $this->_tpl_vars['category']['id']; ?>
+                    <option <?php if ($this->_tpl_vars['productCategory']->getId() == $this->_tpl_vars['category']['id']): ?> selected="selected" <?php endif; ?> value="<?php echo $this->_tpl_vars['category']['id']; ?>
 "><?php echo $this->_tpl_vars['category']['name']; ?>
 </option>
                 <?php endforeach; endif; unset($_from); ?>
@@ -27,7 +28,7 @@
     <div class="form-element">
         <label for="">
             Артикул:<br>
-            <input type="text" name="article" value="<?php echo $this->_tpl_vars['product']['article']; ?>
+            <input type="text" name="article" value="<?php echo $this->_tpl_vars['product']->getArticle(); ?>
 " required>
         </label>
     </div>
@@ -42,18 +43,18 @@
             Фото:<br>
             <input type="file" multiple name="images[]" >
         </label>
-        <?php if ($this->_tpl_vars['product']['images']): ?>
+                <?php if ($this->_tpl_vars['product']->getImages()): ?>
             <div class="form-group d-flex flex-wrap">
-                <?php $_from = $this->_tpl_vars['product']['images']; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array'); }if (count($_from)):
+                                <?php $_from = $this->_tpl_vars['product']->getImages(); if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array'); }if (count($_from)):
     foreach ($_from as $this->_tpl_vars['image']):
 ?>
                     <div class="card">
                         <div class="card-body">
-                            <button class="btn btn-primary sm" data-image-id="<?php echo $this->_tpl_vars['image']['id']; ?>
+                            <button class="btn btn-primary sm" data-image-id="<?php echo $this->_tpl_vars['image']->getId(); ?>
 " onclick="return deleteImage(this);">Удалить</button>
                         </div>
-                        <img src="<?php echo $this->_tpl_vars['image']['path']; ?>
-" alt="<?php echo $this->_tpl_vars['image']['name']; ?>
+                        <img src="<?php echo $this->_tpl_vars['image']->getPath(); ?>
+" alt="<?php echo $this->_tpl_vars['image']->getName(); ?>
 " width="100">
 
                     </div>
@@ -104,21 +105,21 @@
     <div class="form-element">
         <label for="">
             Цена:<br>
-            <input type="number" name="price" value="<?php echo $this->_tpl_vars['product']['price']; ?>
+            <input type="number" name="price" value="<?php echo $this->_tpl_vars['product']->getPrice(); ?>
 " required>
         </label>
     </div>
     <div class="form-element">
         <label for="">
             Количество товара на складе:<br>
-            <input type="number" name="amount" value="<?php echo $this->_tpl_vars['product']['amount']; ?>
+            <input type="number" name="amount" value="<?php echo $this->_tpl_vars['product']->getAmount(); ?>
 " required>
         </label>
     </div>
     <div class="form-element">
         <label for="">
             Описание товара:<br>
-            <textarea name="description" required><?php echo $this->_tpl_vars['product']['description']; ?>
+            <textarea name="description" ><?php echo $this->_tpl_vars['product']->getDescription(); ?>
 </textarea>
         </label>
     </div>

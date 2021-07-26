@@ -23,25 +23,28 @@
                 <tbody>
                     {foreach from=$products item=product}
                     <tr>
-                        <td>{$product.id}</td>
+                        <td>{*$product.id*}{$product->getId()}</td>
                         <td width="200">
-                            <strong>{$product.name}</strong>
-                            {if $product.images}
+                            <strong>{*$product.name*}{$product->getName()}</strong>
+                            {*if $product.images*}
+                            {if $product->getImages()}
                                 <br>
-                                {foreach from=$product.images item=image}
-                                    <img width="40" src="{$image.path}" alt="{$image.name}">
+                                {*foreach from=$product.images item=image*}
+                                {foreach from=$product->getImages() item=image}
+                                    <img width="40" src="{*$image.path*}{$image->getPath()}" alt="{*$image.name*}{$image->getName()}">
                                 {/foreach}
                             {/if}
                         </td>
-                        <td>{$product.category_name}</td>
-                        <td>{$product.article}</td>
-                        <td>{$product.price}</td>
-                        <td>{$product.amount}</td>
+                        {assign var=productCategory value=$product->getCategory()}
+                        <td>{*$product.category_name*}{$productCategory->getName()}</td>
+                        <td>{*$product.article*}{$product->getArticle()}</td>
+                        <td>{*$product.price*}{$product->getPrice()}</td>
+                        <td>{*$product.amount*}{$product->getAmount()}</td>
                         
                         <td>
-                            <a href="/products/edit?id={$product.id}" class="btn btn-primary">Ред</a>
+                            <a href="/products/edit?id={*$product.id*}{$product->getId()}" class="btn btn-primary">Ред</a>
                             !
-                            <form action="/products/delete" method="POST" style="display: inline;"><input type="hidden" name="id" value="{$product.id}"><input type="submit" value="Уд" class="btn btn-danger"></form>
+                            <form action="/products/delete" method="POST" style="display: inline;"><input type="hidden" name="id" value="{*$product.id*}{$product->getId()}"><input type="submit" value="Уд" class="btn btn-danger"></form>
                         </td>
                     </tr>
                     {/foreach}

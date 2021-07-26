@@ -14,8 +14,8 @@
     <header>
         <div class="row">
             <ul class="nav nav-pills">
-                <li class="nav-item"><a href="/products/list" class="nav-link">Товары</a></li>
-                <li class="nav-item"><a href="/categories/list" class="nav-link">Категории</a></li>
+                <li class="nav-item"><a href="/products/" class="nav-link">Товары</a></li>
+                <li class="nav-item"><a href="/categories/" class="nav-link">Категории</a></li>
                 <li class="nav-item"><a href="/import/index" class="nav-link">Импорт товаров</a></li>
                 <li class="nav-item"><a href="/queue/list" class="nav-link">Список задач</a></li>
             </ul>

@@ -23,7 +23,7 @@ class Category{
         if (isset($category['id'])){
             unset($category['id']);
         }
-        Db::update('categories',$category,"id=$id");
+        return Db::update('categories',$category,"id=$id");
     }
 
     public static function add(array $category)

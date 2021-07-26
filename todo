@@ -1,7 +1,8 @@
-Подключение Composer
-Рефакторинг на объекты (Exception)
-Dependency Injection (Reflection Api)
++ Подключение Composer
++ Рефакторинг на объекты (Exception)
 Роутинг
+Dependency Injection (Reflection Api)
+
 
 
 Авторизация

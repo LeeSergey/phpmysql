@@ -4,6 +4,9 @@ namespace App\Db;
 
 class Db {
 
+    /**
+     * @var string
+     */
     private static $host= '127.0.0.1';
     private static $database= 'test_database';
     private static $username= 'SL';
@@ -21,11 +24,11 @@ class Db {
 
     public static function query($query) {
 
-        $connect = static::getConnect();
-        $result = mysqli_query($connect, $query);
+        $conn = static::getConnect();
+        $result = mysqli_query($conn, $query);
 
-        if (mysqli_errno($connect)){
-            var_dump(mysqli_errno($connect), mysqli_error($connect));
+        if (mysqli_errno($conn)){
+            var_dump(mysqli_errno($conn), mysqli_error($conn));
             exit;
         }
 
@@ -38,11 +41,16 @@ class Db {
         $result = static::query($query);
 
         $data = [];
-        while ($row = mysqli_fetch_assoc($result)){
+        while ($row = static::fetchAssoc($result)){
             $data[] = $row;
         }
 
         return $data;
+    }
+
+    public static function fetchAssoc($result): ?array
+    {
+        return mysqli_fetch_assoc($result);
     }
 
     public static function fetchRow(string $query): array

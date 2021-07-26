@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.31, created on 2021-07-05 14:27:16
+<?php /* Smarty version 2.6.31, created on 2021-07-22 17:37:50
          compiled from categories/index.tpl */ ?>
 <?php $_smarty_tpl_vars = $this->_tpl_vars;
 $this->_smarty_include(array('smarty_include_tpl_file' => "header.tpl", 'smarty_include_vars' => array('h1' => "Список категорий")));

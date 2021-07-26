@@ -1,17 +1,18 @@
 <form action="" method="POST" class="form" enctype="multipart/form-data">
-    <input type="hidden" name="id" value="{$product.id}">
+    <input type="hidden" name="id" value="{*$product.id*}{$product->getId()}">
     <div class="form-element">
         <label for="">
             Название товара:<br>
-            <input type="text" name="name" value="{$product.name}" required>
+            <input type="text" name="name" value="{*$product.name*}{$product->getName()}" required>
         </label>
     </div>
     <div class="form-element">
         <label for="">
             Категория товара:<br>
             <select name="category_id" >
+                {assign var=productCategory value=$product->getCategory()}
                 {foreach from=$categories item=category}
-                    <option {if $category.id == $product.category_id} selected="selected" {/if} value="{$category.id}">{$category.name}</option>
+                    <option {*if $category.id == $product.category_id*}{if $productCategory->getId() == $category.id} selected="selected" {/if} value="{$category.id}">{$category.name}</option>
                 {/foreach}
             </select>
         </label>
@@ -19,7 +20,7 @@
     <div class="form-element">
         <label for="">
             Артикул:<br>
-            <input type="text" name="article" value="{$product.article}" required>
+            <input type="text" name="article" value="{*$product.article*}{$product->getArticle()}" required>
         </label>
     </div>
     <div class="form-element">
@@ -33,14 +34,16 @@
             Фото:<br>
             <input type="file" multiple name="images[]" >
         </label>
-        {if $product.images}
+        {*if $product.images*}
+        {if $product->getImages()}
             <div class="form-group d-flex flex-wrap">
-                {foreach from=$product.images item=image}
+                {*foreach from=$product.images item=image*}
+                {foreach from=$product->getImages() item=image}
                     <div class="card">
                         <div class="card-body">
-                            <button class="btn btn-primary sm" data-image-id="{$image.id}" onclick="return deleteImage(this);">Удалить</button>
+                            <button class="btn btn-primary sm" data-image-id="{*$image.id*}{$image->getId()}" onclick="return deleteImage(this);">Удалить</button>
                         </div>
-                        <img src="{$image.path}" alt="{$image.name}" width="100">
+                        <img src="{*$image.path*}{$image->getPath()}" alt="{*$image.name*}{$image->getName()}" width="100">
 
                     </div>
                 {/foreach}
@@ -89,19 +92,19 @@
     <div class="form-element">
         <label for="">
             Цена:<br>
-            <input type="number" name="price" value="{$product.price}" required>
+            <input type="number" name="price" value="{*$product.price*}{$product->getPrice()}" required>
         </label>
     </div>
     <div class="form-element">
         <label for="">
             Количество товара на складе:<br>
-            <input type="number" name="amount" value="{$product.amount}" required>
+            <input type="number" name="amount" value="{*$product.amount*}{$product->getAmount()}" required>
         </label>
     </div>
     <div class="form-element">
         <label for="">
             Описание товара:<br>
-            <textarea name="description" required>{$product.description}</textarea>
+            <textarea name="description" >{*$product.description*}{$product->getDescription()}</textarea>
         </label>
     </div>
     <div class="form-element">

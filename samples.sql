@@ -16,3 +16,7 @@ CREATE TABLE `tasks_queue`(
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY(id)
 );
+
+DROP DATABASE db_name; // delete database
+mysqldump -u SL db_name > db_name2.sql // create local dump database file
+mysql -u SL -p db_name2 < db_name2.sql // insert to database from local dump database
