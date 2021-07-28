@@ -33,4 +33,12 @@ class Request
     {
         return !empty($_POST);
     }
+
+    public static function getUrl()
+    {
+        $url = $_SERVER['PATH_INFO'] ?? '/';
+
+        return $url;
+
+    }
 }
