@@ -56,7 +56,7 @@ class Route
     /**
      * @return string|null
      */
-    public function getController(): string
+    public function getController(): ?string
     {
         return $this->controller;
     }
@@ -65,7 +65,7 @@ class Route
      * @param string|null $controller
      * @return Route
      */
-    public function setController(string $controller): Route
+    public function setController(?string $controller): Route
     {
         $this->controller = $controller;
         return $this;
@@ -74,7 +74,7 @@ class Route
     /**
      * @return string|null
      */
-    public function getMethod(): string
+    public function getMethod(): ?string
     {
         return $this->method;
     }

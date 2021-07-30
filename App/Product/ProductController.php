@@ -2,10 +2,8 @@
 
 namespace App\Product;
 
-use App\Category;
+use App\CategoryService;
 use App\Category\CategoryModel;
-use App\Product;
-use App\ProductImage;
 use App\Renderer;
 use App\Request;
 use App\Response;
@@ -24,18 +22,22 @@ class ProductController
         $this->route = $route;
     }
 
-    public function list()
+    /**
+     * @param Request $request
+     * @param ProductRepository $productRepository
+     *
+     * @route("/product_list")
+     */
+    public function list(Request $request, ProductRepository $productRepository)
     {
-        $current_page = Request::getIntFromGet('p', 1);
+        $current_page = $request->getIntFromGet('p', 1);
 
         $limit = 10;
         $offset = ($current_page - 1) * $limit;
 
-        $products_count = Product::getListCount();
-
+        $products_count = $productRepository->getListCount();
         $pages_count = ceil($products_count/$limit);
 
-        $productRepository = new ProductRepository();
         $products = $productRepository->getList($limit,$offset);
 
         Renderer::getSmarty()->assign('pages_count', $pages_count);
@@ -43,22 +45,36 @@ class ProductController
         Renderer::getSmarty()->display('products/index.tpl');
     }
 
-    public function edit()
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param ProductService $productService
+     * @param ProductRepository $productRepository
+     * @param ProductImageService $productImageService
+     * @param CategoryService $categoryService
+     *
+     * @route("/product_edit/{id}")
+     */
+    public function edit(
+        Request $request,
+        Response $response,
+        ProductService $productService,
+        ProductRepository $productRepository,
+        ProductImageService $productImageService,
+        CategoryService $categoryService)
     {
-        $productId = Request::getIntFromGet('id',null);
+        $productId = $request->getIntFromGet('id',null);
         if (is_null($productId)){
             $productId = $this->route->getParam('id');
         }
         $product = [];
 
-        $productRepository = new ProductRepository();
-
         if ($productId) {
             $product = $productRepository->getById($productId);
         }
 
-        if (Request::isPost()){
-            $productData = Product::getDataFromPost();
+        if ($request->isPost()){
+            $productData = $productService->getDataFromPost($request);
 
             $product->setName($productData['name']);
             $product->setArticle($productData['article']);
@@ -68,7 +84,7 @@ class ProductController
 
             $categoryId = $productData['category_id'] ?? 0;
             if ($categoryId){
-                $categoryData = Category::getById($categoryId);
+                $categoryData = $categoryService->getById($categoryId);
                 $categoryName = $categoryData['name'];
                 $category = new CategoryModel($categoryName);
                 $category->setId($categoryId);
@@ -77,21 +93,21 @@ class ProductController
             }
 
             $product = $productRepository->save($product);
-            $edited = Product::updateById($productId, $productData);
+            $edited = $productService->updateById($productId, $productData);
 
             /* Загрузка изображений по урл */
             $imageUrl = $_POST['image_url'];
-            ProductImage::uploadImagesByUrl($productId , $imageUrl);
+            $productImageService->uploadImagesByUrl($productId , $imageUrl);
 
             /* Загрузка изображений c локального диска */
             $uploadImages = $_FILES['images'] ?? [];
-            ProductImage::uploadImages($productId, $uploadImages);
+            $productImageService->uploadImages($productId, $uploadImages);
 
-            Response::redirect('/products/');
+            $response->redirect('/products/');
 
         }
 
-        $categories = Category::getList();
+        $categories = $categoryService->getList();
 
         Renderer::getSmarty()->assign('product',$product);
         Renderer::getSmarty()->assign('categories',$categories);
@@ -102,7 +118,7 @@ class ProductController
     {
         if (Request::isPost()){
 
-            $productData = Product::getDataFromPost();
+            $productData = ProductService::getDataFromPost();
             $productRepository = new ProductRepository();
             $product = $productRepository->getProductFromArray($productData);
 
@@ -112,11 +128,11 @@ class ProductController
 
             /* Загрузка изображений по урл */
             $imageUrl = $_POST['image_url'];
-            ProductImage::uploadImagesByUrl($productId , $imageUrl);
+            ProductImageService::uploadImagesByUrl($productId , $imageUrl);
 
             /* Загрузка изображений c локального диска */
             $uploadImages = $_FILES['images'] ?? [];
-            ProductImage::uploadImages($productId, $uploadImages);
+            ProductImageService::uploadImages($productId, $uploadImages);
 
             if ($productId) {
                 Response::redirect('/products/');
@@ -126,7 +142,7 @@ class ProductController
 
         }
 
-        $categories = Category::getList();
+        $categories = CategoryService::getList();
         $product = new Product\ProductModel('', 0 , 0);
         $product->setId(0);
 
@@ -148,7 +164,7 @@ class ProductController
             die("Error with id");
         }
 
-        $deleted = Product::deleteById($id);
+        $deleted = ProductService::deleteById($id);
 
         if ($deleted) {
             Response::redirect('/products/');
@@ -165,7 +181,7 @@ class ProductController
             die("error with id");
         }
 
-        $deleted = ProductImage::deleteById($productImageId);
+        $deleted = ProductImageService::deleteById($productImageId);
         die('ok');
         /*if ($deleted) {
             Response::redirect('/products/list');

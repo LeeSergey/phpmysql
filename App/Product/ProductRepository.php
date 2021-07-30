@@ -6,19 +6,26 @@ namespace App\Product;
 
 use App\Category\CategoryModel;
 use App\Db\Db;
-use App\ProductImage;
-use App\ProductImage as ProductImageService;
 
 
 class ProductRepository
 {
+
+    public function getListCount(){
+        $query = "SELECT COUNT(1) AS c FROM products AS p LEFT JOIN categories AS c ON p.category_id = c.id";
+
+        return Db::fetchOne($query);
+    }
+
     public function getById(int $id)
     {
         $query = "SELECT p.* , c.name AS category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.id = $id";
         $productArray = Db::fetchRow($query);
         $product = $this->getProductFromArray($productArray);
 
-        $imagesData = ProductImageService::getListByProductId($product->getId());
+        $productImageService = new ProductImageService();
+        $imagesData = $productImageService->getListByProductId($product->getId());
+
         foreach($imagesData as $imageItem){
             $productImage = $this->getProductImageFromArray($imageItem);
             $product->addImage($productImage);
@@ -37,11 +44,13 @@ class ProductRepository
         $query = "SELECT p.*, c.name as category_name FROM products AS p LEFT JOIN categories AS c ON p.category_id = c.id LIMIT $offset, $limit";
         $result = Db::query($query);
 
+        $productImageService = new ProductImageService();
+
         $products = [];
         while ($productArray = Db::fetchAssoc($result)){
             $product = $this->getProductFromArray($productArray);
 
-            $imagesData = ProductImageService::getListByProductId($product->getId());
+            $imagesData = $productImageService->getListByProductId($product->getId());
             foreach($imagesData as $imageItem){
                 $productImage = $this->getProductImageFromArray($imageItem);
                 $product->addImage($productImage);
@@ -123,7 +132,7 @@ class ProductRepository
             $categoryName = $data['category_name'] ?? null;
 
             if (is_null($categoryName)){
-                $categoryData = \App\Category::getById($categoryId);
+                $categoryData = \App\CategoryService::getById($categoryId);
                 $categoryName = $categoryData['name'];
             }
             $category = new CategoryModel($categoryName);

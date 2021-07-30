@@ -4,21 +4,21 @@ namespace App;
 
 use App\Db\Db;
 
-class Category{
+class CategoryService{
 
-    public static function getList() {
+    public function getList() {
         $query = "SELECT * FROM categories";
 
         return Db::fetchAll($query);
     }
 
-    public static function getById(int $id) {
+    public function getById(int $id) {
         $query = "SELECT * FROM categories WHERE id = $id";
 
         return Db::fetchRow($query);
     }
 
-    public static function updateById(int $id, array $category)
+    public function updateById(int $id, array $category)
     {
         if (isset($category['id'])){
             unset($category['id']);
@@ -26,7 +26,7 @@ class Category{
         return Db::update('categories',$category,"id=$id");
     }
 
-    public static function add(array $category)
+    public function add(array $category)
     {
 
         if (isset($category['id'])){
@@ -36,20 +36,20 @@ class Category{
 
     }
 
-    public static function deleteById(int $id) {
+    public function deleteById(int $id) {
 
         return Db::delete('categories',"id = $id");
 
     }
 
-    public static function getDataFromPost(){
+    public function getDataFromPost(Request $request){
         return [
-            'id' 	=> Request::getIntFromPost('id',false),
-            'name'  => Request::getStrFromPost('name'),
+            'id' 	=> $request->getIntFromPost('id',false),
+            'name'  => $request->getStrFromPost('name'),
         ];
     }
 
-    public static function getByName(string $categoryName)
+    public function getByName(string $categoryName)
     {
         $query = "SELECT * FROM categories WHERE name = '$categoryName'";
         return Db::fetchRow($query);

@@ -4,8 +4,8 @@
 namespace App\Category;
 
 
-use App\Category;
-use App\Product;
+use App\CategoryService;
+use App\Product\ProductService;
 use App\Renderer;
 use App\Request;
 use App\Response;
@@ -23,12 +23,20 @@ class CategoryController
         $this->route = $route;
     }
 
+    /**
+     * @route("/sample")
+     */
+    public function sample()
+    {
+        echo "hello";
+    }
+
     public function add()
     {
         if (Request::isPost()){
 
-            $category = Category::getDataFromPost();
-            $inserted = Category::add($category);
+            $category = CategoryService::getDataFromPost();
+            $inserted = CategoryService::add($category);
 
             if ($inserted) {
                 Response::redirect('/categories/');
@@ -49,7 +57,7 @@ class CategoryController
             die("Error with id");
         }
 
-        $deleted = Category::deleteById($id);
+        $deleted = CategoryService::deleteById($id);
 
         if ($deleted) {
             Response::redirect('/categories/');
@@ -68,15 +76,15 @@ class CategoryController
         $category = [];
 
         if ($id) {
-            $category = Category::getById($id);
+            $category = CategoryService::getById($id);
         }
 
         if (Request::isPost()){
 
             /*$id = $_POST['id'];*/
 
-            $category = Category::getDataFromPost();
-            $edited = Category::updateById($id, $category);
+            $category = CategoryService::getDataFromPost();
+            $edited = CategoryService::updateById($id, $category);
 
 
             if ($edited) {
@@ -92,21 +100,21 @@ class CategoryController
 
     public function list()
     {
-        $categories = Category::getList();
+        $categories = CategoryService::getList();
 
         Renderer::getSmarty()->assign('categories',$categories);
         Renderer::getSmarty()->display('categories/index.tpl');
     }
 
-    public function view()
+    public function view(ProductService $productService, CategoryService $categoryService, Request $request)
     {
-        $category_id = Request::getIntFromGet('id',null);
+        $category_id = $request->getIntFromGet('id',null);
         if (is_null($category_id)){
             $category_id = $this->route->getParam('id') ?? null;
         }
 
-        $category = Category::getById($category_id);
-        $products = Product::getListByCategory($category_id);
+        $category = $categoryService->getById($category_id);
+        $products = $productService->getListByCategory($category_id);
 
         Renderer::getSmarty()->assign('products',$products);
         Renderer::getSmarty()->assign('current_category',$category);
