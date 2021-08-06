@@ -95,16 +95,20 @@ class CategoryController extends AbstractController
             }
 
         }
-        Renderer::getSmarty()->assign('category',$category);
-        Renderer::getSmarty()->display('categories/edit.tpl');
+
+        $this->render('categories/edit.tpl', [
+            'category'=>$category,
+        ]);
     }
 
     public function list(CategoryService $categoryService)
     {
         $categories = $categoryService->getList();
 
-        Renderer::getSmarty()->assign('categories',$categories);
-        Renderer::getSmarty()->display('categories/index.tpl');
+
+        $this->render('categories/index.tpl', [
+            'categories'=>$categories,
+        ]);
     }
 
     public function view(ProductService $productService, CategoryService $categoryService, Request $request)
@@ -117,9 +121,10 @@ class CategoryController extends AbstractController
         $category = $categoryService->getById($category_id);
         $products = $productService->getListByCategory($category_id);
 
-        Renderer::getSmarty()->assign('products',$products);
-        Renderer::getSmarty()->assign('current_category',$category);
-        Renderer::getSmarty()->display('categories/view.tpl');
+        $this->render('categories/view.tpl', [
+            'products'=>$products,
+            'current_category'=>$category,
+        ]);
     }
 
 }
