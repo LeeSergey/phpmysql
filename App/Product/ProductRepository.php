@@ -5,6 +5,7 @@ namespace App\Product;
 
 
 use App\Category\CategoryModel;
+use App\CategoryService;
 use App\Db\Db;
 
 
@@ -132,7 +133,8 @@ class ProductRepository
             $categoryName = $data['category_name'] ?? null;
 
             if (is_null($categoryName)){
-                $categoryData = \App\CategoryService::getById($categoryId);
+                $categoryService = new CategoryService();
+                $categoryData = $categoryService->getById($categoryId);
                 $categoryName = $categoryData['name'];
             }
             $category = new CategoryModel($categoryName);

@@ -2,18 +2,26 @@
 
 namespace App\Import;
 
+use App\Controller\AbstractController;
 use App\Import;
 use App\Renderer;
 use App\Response;
 use App\TasksQueue;
 
-class ImportController
+class ImportController extends AbstractController
 {
+
+    public function __construct()
+    {
+    }
 
     public function index()
     {
-        $smarty = Renderer::getSmarty();
-        $smarty->display('import/index.tpl');
+//        $smarty = Renderer::getSmarty();
+//        $smarty->display('import/index.tpl');
+
+        $this->render('import/index.tpl',[]);
+
     }
 
     public function upload()

@@ -3,10 +3,18 @@
 
 namespace App;
 
+use Smarty;
+
 
 class Renderer
 {
     protected static $smarty;
+
+    public function __construct()
+    {
+//        $this->smarty = $smarty;
+    }
+
 
     public static function getSmarty()
     {
@@ -19,7 +27,7 @@ class Renderer
 
     public static function init()
     {
-        $smarty = new \Smarty(); // создание объекта смарти;
+        $smarty = new Smarty(); // создание объекта смарти;
         $smarty->template_dir = APP_DIR . '/templates';
         $smarty->compile_dir = APP_DIR . '/var/compile';
         $smarty->cache_dir = APP_DIR . '/var/cache';

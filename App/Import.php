@@ -2,6 +2,8 @@
 
 namespace App;
 use App\Db\Db;
+use App\Product\ProductImageService;
+use App\Product\ProductService;
 
 class Import
 {
@@ -61,13 +63,15 @@ class Import
 
             $product['category_id'] = $categoryId;
 
-            $targetProduct = ProductService::getByField($mainField, $product[$mainField]);
+            $productService = new ProductService();
+
+            $targetProduct = $productService->getByField($mainField, $product[$mainField]);
             if (empty($targetProduct)){
-                $productId = ProductService::add($product);
+                $productId = $productService->add($product);
             } else {
                 $productId = $targetProduct['id'];
                 $targetProduct = array_merge($targetProduct, $product);
-                ProductService::updateById($productId, $targetProduct);
+                $productService->updateById($productId, $targetProduct);
             }
 
             //$productId = Product::add($product);
@@ -80,8 +84,10 @@ class Import
                 return !empty($item);
             });
 
+            $productImageService = new ProductImageService();
+
             foreach ($productData['image_urls'] as $imageUrl){
-                ProductImageService::uploadImagesByUrl($productId , $imageUrl);
+                $productImageService->uploadImagesByUrl($productId , $imageUrl);
             }
         }
 

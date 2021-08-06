@@ -11,6 +11,7 @@
     ],
     "require": {
         "php": ">=7.3",
-        "smarty/smarty": "2.6.*"
+        "smarty/smarty": "2.6.*",
+      "ext-json": "*"
     }
 }

@@ -5,22 +5,23 @@ namespace App\Category;
 
 
 use App\CategoryService;
+use App\Controller\AbstractController;
 use App\Product\ProductService;
 use App\Renderer;
 use App\Request;
 use App\Response;
 use App\Router\Route;
 
-class CategoryController
+class CategoryController extends AbstractController
 {
-    /**
-     * @var Route
-     */
-    private $route;
+//    /**
+//     * @var Route
+//     */
+//    private $route;
 
-    public function __construct(Route $route)
+    public function __construct()
     {
-        $this->route = $route;
+//        $this->route = $route;
     }
 
     /**
@@ -31,44 +32,44 @@ class CategoryController
         echo "hello";
     }
 
-    public function add()
+    public function add(Request $request, Response $response,CategoryService $categoryService)
     {
-        if (Request::isPost()){
+        if ($request->isPost()){
 
-            $category = CategoryService::getDataFromPost();
-            $inserted = CategoryService::add($category);
+            $category = $categoryService->getDataFromPost($request);
+            $inserted = $categoryService->add($category);
 
             if ($inserted) {
-                Response::redirect('/categories/');
+                $response->redirect('/categories/');
             } else {
                 die("some insert error");
             }
 
         }
 
-        Renderer::getSmarty()->display('categories/add.tpl');
+        return $this->render('categories/add.tpl', []);
+
     }
 
-    public function delete()
+    public function delete(Request $request,Response $response,CategoryService $categoryService)
     {
-        $id = Request::getIntFromPost('id',false);
+        $id = $request->getIntFromPost('id',false);
 
         if (!$id){
             die("Error with id");
         }
 
-        $deleted = CategoryService::deleteById($id);
-
+        $deleted = $categoryService->deleteById($id);
         if ($deleted) {
-            Response::redirect('/categories/');
+            $response->redirect('/categories/');
         } else {
             die("some error with delete");
         }
     }
 
-    public function edit()
+    public function edit(Request $request,Response $response,CategoryService $categoryService)
     {
-        $id = Request::getIntFromGet('id',null);
+        $id = $request->getIntFromGet('id',null);
         if (is_null($id)){
             $id = $this->route->getParam('id');
         }
@@ -76,19 +77,19 @@ class CategoryController
         $category = [];
 
         if ($id) {
-            $category = CategoryService::getById($id);
+            $category = $categoryService->getById($id);
         }
 
-        if (Request::isPost()){
+        if ($request->isPost()){
 
             /*$id = $_POST['id'];*/
 
-            $category = CategoryService::getDataFromPost();
-            $edited = CategoryService::updateById($id, $category);
+            $category = $categoryService->getDataFromPost($request);
+            $edited = $categoryService->updateById($id, $category);
 
 
             if ($edited) {
-                Response::redirect('/categories/');
+                $response->redirect('/categories/');
             } else {
                 die("some edit error");
             }
@@ -98,9 +99,9 @@ class CategoryController
         Renderer::getSmarty()->display('categories/edit.tpl');
     }
 
-    public function list()
+    public function list(CategoryService $categoryService)
     {
-        $categories = CategoryService::getList();
+        $categories = $categoryService->getList();
 
         Renderer::getSmarty()->assign('categories',$categories);
         Renderer::getSmarty()->display('categories/index.tpl');

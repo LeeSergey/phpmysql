@@ -2,35 +2,45 @@
 
 namespace App\Queue;
 
+use App\Controller\AbstractController;
 use App\Renderer;
 use App\Request;
 use App\Response;
 use App\TasksQueue;
 
-class QueueController
+class QueueController extends AbstractController
 {
+
+    public function __construct()
+    {
+    }
 
     public function list()
     {
         $tasks = TasksQueue::getTaskList();
 
-        $smarty = Renderer::getSmarty();
-        $smarty->assign('queue_tasks', $tasks);
-        $smarty->display('queue/list.tpl');
+//        $smarty = Renderer::getSmarty();
+//        $smarty->assign('queue_tasks', $tasks);
+//        $smarty->display('queue/list.tpl');
+
+        return $this->render('queue/list.tpl',[
+            'queue_tasks' => $tasks,
+        ]);
+
     }
 
-    public function run()
+    public function run(Request $request, Response $response)
     {
-        $id = Request::getIntFromGet('id');
+        $id = $request->getIntFromGet('id');
 
         $result = TasksQueue::runById($id);
 
-        Response::redirect('/queue/list');
+        $response->redirect('/queue/list');
     }
 
-    public function delete()
+    public function delete(Request $request, Response $response)
     {
-        $id = Request::getIntFromPost('id');
+        $id = $request->getIntFromPost('id');
 
         $taskUploadedFilename = TasksQueue::deleteById($id);
         if (empty($taskUploadedFilename)){
@@ -43,6 +53,6 @@ class QueueController
             unlink($filepath);
         }
 
-        Response::redirect('/queue/list');
+        $response->redirect('/queue/list');
     }
 }
