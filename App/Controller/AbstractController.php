@@ -10,11 +10,13 @@ abstract class AbstractController
 {
     /**
      * @var Renderer
+     * @onInit(\App\Renderer)
      */
     protected $renderer;
 
     /**
      * @var Route
+     * @onInit(\App\Renderer\Route)
      */
     protected $route;
 

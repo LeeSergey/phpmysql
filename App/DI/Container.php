@@ -4,10 +4,13 @@ namespace App\DI;
 
 
 use App\Router\Exception\MethodDoesNotExistException;
+use App\Router\Route;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use ReflectionObject;
+use ReflectionProperty;
 
 class Container
 {
@@ -21,21 +24,30 @@ class Container
      */
     private $singletones = [];
 
-    public function execute(string $className, string $methodName)
-    {
-
-    }
+    /**
+     * @var object[]
+     */
+    private $dependencyMapping =[];
 
     /**
      * @param string $className
      * @return object
      * @throws ReflectionException
      */
-    public function get(string $className)
+    public function get(string $className, array $dependencyMapping = null)
     {
+        if (!is_null($dependencyMapping)){
+            $this->setDependencyMapping($dependencyMapping);
+        }
+
+        if (array_key_exists($className, $this->dependencyMapping) && is_object($this->dependencyMapping[$className])){
+            return $this->dependencyMapping[$className];
+        }
+
         if ($this->isSingletone($className)){
             return $this->getSingletone($className);
         }
+
         return $this->createInstance($className);
     }
 
@@ -73,6 +85,135 @@ class Container
     }
 
     /**
+     * @param object $object
+     * @param string|null $methodName
+     * @return false|mixed|null
+     * @throws ReflectionException
+     */
+    public function call(object $object, ?string $methodName)
+    {
+        if(!is_object($object)){
+            return null;
+        }
+
+        $reflectionClass = new ReflectionObject($object);
+        $reflectionMethod = $reflectionClass->getMethod($methodName);
+        $arguments = $this->getDependencies($reflectionMethod);
+
+        return call_user_func_array([$object , $methodName], $arguments);
+
+    }
+
+    /**
+     * @param $object
+     * @param string $propertyName
+     * @param $value
+     * @return bool|null
+     * @throws ReflectionException
+     */
+    public function setProperty($object, string $propertyName, $value)
+    {
+        if (!is_object($object)){
+            return null;
+        }
+
+        $reflectionController = new ReflectionObject($object);
+
+        $reflectionRenderer = $reflectionController->getProperty($propertyName);
+        $reflectionRenderer->setAccessible(true);
+        $reflectionRenderer->setValue($object , $value);
+        $reflectionRenderer->setAccessible(false);
+
+        return true;
+
+    }
+
+    /**
+     * @param ReflectionClass|ReflectionFunctionAbstract|ReflectionProperty $target
+     * @return array|string[]|null
+     */
+    public function parseDocComment($target)
+    {
+        $isReflectionClass = $target instanceof ReflectionClass;
+        $isReflectionFunction = $target instanceof ReflectionFunctionAbstract;
+        $isReflectionProperty = $target instanceof ReflectionProperty;
+
+        $hasDocComment = $isReflectionClass || $isReflectionFunction || $isReflectionProperty;
+
+        if (!$hasDocComment){
+            return null;
+        }
+
+        $docComment = (string) $target->getDocComment();
+
+        $docComment = str_replace(['/**','*/'],'',$docComment);
+        $docComment = trim($docComment);
+        $docCommentArray = explode("\n", $docComment);
+
+        $docCommentArray = array_map(function ($item){
+            $item = trim($item);
+
+            $position = strpos($item, '*');
+            if ($position === 0){
+                $item = substr($item, 1);
+            }
+
+            return trim($item);
+        }, $docCommentArray);
+
+        return $docCommentArray;
+
+    }
+
+    protected function setDependencyMapping(array $mapping)
+    {
+        $this->dependencyMapping = $mapping;
+    }
+    
+    protected function initProtectedAndPrivateProperties($object)
+    {
+        $reflectionObject = new ReflectionObject($object);
+        $reflectionProperties = $reflectionObject->getProperties(ReflectionProperty::IS_PRIVATE | ReflectionProperty::IS_PROTECTED);
+
+        foreach ($reflectionProperties as $reflectionProperty){
+//            $docComment = $reflectionProperty->getDocComment();
+            $docCommentArray = $this->parseDocComment($reflectionProperty);
+
+            $dependencyClass = null;
+
+            foreach ($docCommentArray as $docComment){
+                $onInitPrefix = '@onInit(';
+                $isOnInit = strpos($docComment, $onInitPrefix) === 0;
+
+                if (!$isOnInit) {
+                    continue;
+                }
+
+                $dependencyClass = str_replace($onInitPrefix, '',$docComment);
+                $dependencyClass = substr($dependencyClass, 0, -1);
+
+                if (!class_exists($dependencyClass)){
+                    $dependencyClass = null;
+                }
+
+                break;
+            }
+
+            if (is_null($dependencyClass)){
+                continue;
+            }
+
+            $reflectionProperty->setAccessible(true);
+            $dependencyClassObject = $this->get($dependencyClass);
+            $reflectionProperty->setValue($object, $dependencyClassObject);
+            $reflectionProperty->setAccessible(false);
+
+//               echo "<pre>";var_dump($docCommentArray, $reflectionProperty->getDeclaringClass());echo "</pre>";
+
+        }
+    }
+
+    /**
      * @param string $className
      * @return object|null
      */
@@ -103,37 +244,19 @@ class Container
         $reflectionClass = new ReflectionClass($className);
         $reflectionConstructor = $reflectionClass->getConstructor();
 
+
+
         if ($reflectionConstructor instanceof ReflectionMethod){
             $arguments = $this->getDependencies($reflectionConstructor);
-            return $reflectionClass->newInstanceArgs($arguments);
+            $object = $reflectionClass->newInstanceArgs($arguments);
+        } else {
+            $object = $reflectionClass->newInstance();
         }
-
-        return $reflectionClass->newInstance();
+        $this->initProtectedAndPrivateProperties($object);
+        return $object;
     }
     
-    /**
-     * @param $object
-     * @param string $propertyName
-     * @param $value
-     * @return bool|null
-     * @throws ReflectionException
-     */
-    public function setProperty($object, string $propertyName, $value)
-    {
-        if (!is_object($object)){
-            return null;
-        }
 
-        $reflectionController = new ReflectionObject($object);
-
-        $reflectionRenderer = $reflectionController->getProperty($propertyName);
-        $reflectionRenderer->setAccessible(true);
-        $reflectionRenderer->setValue($object , $value);
-        $reflectionRenderer->setAccessible(false);
-
-        return true;
-
-    }
 
     /**
      * @param ReflectionMethod $reflectionMethod
@@ -162,23 +285,5 @@ class Container
         return $arguments;
     }
 
-    /**
-     * @param object $object
-     * @param string|null $methodName
-     * @return false|mixed|null
-     * @throws ReflectionException
-     */
-    public function call(object $object, ?string $methodName)
-    {
-        if(!is_object($object)){
-            return null;
-        }
 
-        $reflectionClass = new ReflectionObject($object);
-        $reflectionMethod = $reflectionClass->getMethod($methodName);
-        $arguments = $this->getDependencies($reflectionMethod);
-
-        return call_user_func_array([$object , $methodName], $arguments);
-
-    }
 }

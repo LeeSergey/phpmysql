@@ -9,6 +9,10 @@ class Import
 {
     public static function productsFromFileTask(array $params)
     {
+        $categoryService = new CategoryService();
+        $productService = new ProductService();
+        $productImageService = new ProductImageService();
+
         $filename = $params['filename'] ?? null;
 
         if (is_null($filename)){
@@ -52,18 +56,18 @@ class Import
 
             $categoryName = $productData['category_name'];
 
-            $category = CategoryService::getByName($categoryName);
+            $category = $categoryService->getByName($categoryName);
 
             if (empty($category)) {
                 //continue;
-                $categoryId = CategoryService::add([
+                $categoryId = $categoryService->add([
                     'name' => $categoryName,
                 ]);
             } else $categoryId = $category['id'];
 
             $product['category_id'] = $categoryId;
 
-            $productService = new ProductService();
+
 
             $targetProduct = $productService->getByField($mainField, $product[$mainField]);
             if (empty($targetProduct)){
@@ -83,8 +87,6 @@ class Import
             $productData['image_urls'] = array_filter($productData['image_urls'], function ($item){
                 return !empty($item);
             });
-
-            $productImageService = new ProductImageService();
 
             foreach ($productData['image_urls'] as $imageUrl){
                 $productImageService->uploadImagesByUrl($productId , $imageUrl);

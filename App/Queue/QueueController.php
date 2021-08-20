@@ -11,9 +11,9 @@ use App\TasksQueue;
 class QueueController extends AbstractController
 {
 
-    public function __construct()
-    {
-    }
+//    public function __construct()
+//    {
+//    }
 
     public function list()
     {
